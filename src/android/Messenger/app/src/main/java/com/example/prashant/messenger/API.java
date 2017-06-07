@@ -14,20 +14,22 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import javax.net.ssl.HttpsURLConnection;
+
 
 public abstract class API {
-    private final static String API_URL_STRING = "http://192.168.1.2:8080/send-notification";
+    private static String API_URL_STRING;
 
     private JSONObject _reqObj;
     private Activity _activity;
 
     // Constructor.
-    public API(Activity activity) {
+    public API(Activity activity, String url) {
         _activity = activity;
+        API_URL_STRING = "https://messenger.jobjot.co.nz:8080" + url;
     }
 
     // Request/Response.
@@ -58,23 +60,23 @@ public abstract class API {
     private void commenceRequestSend() {
         try {
             URL url = new URL(API_URL_STRING);
-            HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
+            HttpsURLConnection httpsConnection = (HttpsURLConnection)url.openConnection();
 
-            httpConnection.setReadTimeout(10000);
-            httpConnection.setConnectTimeout(10000);
+            httpsConnection.setReadTimeout(10000);
+            httpsConnection.setConnectTimeout(10000);
 
-            httpConnection.setRequestMethod("POST");
-            httpConnection.setRequestProperty("Content-Type", "application/json");
+            httpsConnection.setRequestMethod("POST");
+            httpsConnection.setRequestProperty("Content-Type", "application/json");
 
-            httpConnection.setDoInput(true);
-            httpConnection.setDoOutput(true);
+            httpsConnection.setDoInput(true);
+            httpsConnection.setDoOutput(true);
 
             byte[] rawJSON = _reqObj.toString().getBytes(StandardCharsets.UTF_8);
-            httpConnection.getOutputStream().write(rawJSON, 0, rawJSON.length);
+            httpsConnection.getOutputStream().write(rawJSON, 0, rawJSON.length);
 
             String line;
             String resObjStr = "";
-            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(httpsConnection.getInputStream()));
             while ((line = reader.readLine()) != null) {
                 resObjStr += line;
             }
