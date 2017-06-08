@@ -37,6 +37,15 @@ public class LoginActivity extends AppCompatActivity {
     private void request() {
         String username = etUserName.getText().toString().trim();
 
+        if (username == "") {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Please enter a username to continue");
+            builder.setCancelable(true);
+
+            AlertDialog alert11 = builder.create();
+            alert11.show();
+        }
+
         JSONObject reqObj = new JSONObject();
         try {
             reqObj.put("userName", username);
@@ -58,11 +67,11 @@ public class LoginActivity extends AppCompatActivity {
     private void responseHandler(Exception ex, JSONArray resObj) {
 
         if (ex != null) {
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-            builder1.setMessage(ex.getMessage());
-            builder1.setCancelable(true);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(ex.getMessage());
+            builder.setCancelable(true);
 
-            AlertDialog alert11 = builder1.create();
+            AlertDialog alert11 = builder.create();
             alert11.show();
 
             Log.e("ERROR",ex.getMessage());

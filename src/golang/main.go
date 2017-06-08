@@ -17,9 +17,7 @@ func main() {
     http.HandleFunc("/login", login)
 
     err := http.ListenAndServeTLS(":8080", "../src/golang/crt/messenger.jobjot.co.nz.crt", "../src/golang/key/messenger.jobjot.co.nz.key", nil)
-    fmt.Println("no")
     if err != nil {
-        fmt.Println("lol")
         fmt.Println(err)
         return
     }
@@ -49,7 +47,7 @@ func login(w http.ResponseWriter, r *http.Request) {
     storage = append(storage, user)
     fmt.Println(storage)
 
-    w.Write([]byte(`{"message": "Message has been recorded."}`))
+    w.Write([]byte(`[{"message": "Message has been recorded."}]`))
 
     return
 }
