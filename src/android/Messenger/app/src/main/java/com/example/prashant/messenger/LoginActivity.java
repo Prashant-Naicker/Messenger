@@ -65,21 +65,34 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void responseHandler(Exception ex, JSONArray resObj) {
+        String message = "";
+        int statusCode = 0;
 
         if (ex != null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(ex.getMessage());
-            builder.setCancelable(true);
-
-            AlertDialog alert11 = builder.create();
-            alert11.show();
-
+            alert(ex.getMessage());
             Log.e("ERROR",ex.getMessage());
             return;
         }
 
+        try {
+            statusCode = resObj.getJSONObject(0).getInt("statusCode");
+            message = resObj.getJSONObject(1).getString("message");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (statusCode != 200) { alert(message); return; }
         Intent i = new Intent(this, ChatActivity.class);
         startActivity(i);
+    }
+
+    private void alert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message);
+        builder.setCancelable(true);
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }
