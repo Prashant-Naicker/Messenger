@@ -7,17 +7,26 @@ import (
     "io/ioutil"
     "encoding/json"
     "encoding/binary"
+    "time"
 )
 
 type Users struct {
-    Users string `json:"userName"`
+    User string `json:"userName"`
+}
+
+type Messages struct {
+    User string `json:"userName"`
+    Message string `json:"message"`
+    Time string
 }
 
 var storage = []Users{}
+var messages = []Messages{}
 
 func main() {
     fmt.Println("Server is running...")
     http.HandleFunc("/login", login)
+    http.HandleFunc("/message", message)
 
     err := http.ListenAndServeTLS(":8080", "../src/golang/crt/messenger.jobjot.co.nz.crt", "../src/golang/key/messenger.jobjot.co.nz.key", nil)
     if err != nil {
@@ -33,9 +42,39 @@ func SetGeneralHeaders(w http.ResponseWriter) {
     w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Origin")
 }
 
+func message(w http.ResponseWriter, r *http.Request) {
+    SetGeneralHeaders(w)
+    fmt.Println("Request Made - message")
+    t := time.Now().Format("20060102150405")
+
+    message := Messages{}
+
+    message.Time = t
+
+    //Reading request body.
+    defer r.Body.Close()
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    err = json.Unmarshal(body, &message)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    messages = append(messages, message)
+    fmt.Println(messages)
+
+    w.Write([]byte(`[{"statusCode" : 200}, {"message" : "OK"}]`))
+    return
+}
+
 func login(w http.ResponseWriter, r *http.Request) {
     SetGeneralHeaders(w)
-    fmt.Println("Request Made")
+    fmt.Println("Request Made - login")
 
     user := Users{}
 
@@ -67,7 +106,7 @@ func login(w http.ResponseWriter, r *http.Request) {
     storage = append(storage, user)
     fmt.Println(storage)
 
-    w.Write([]byte(`[{"statusCode" : 200}, {"message" : "OK"}]`))
+    w.Write([]byte(`[{"statusCode" : 200}, {"message" : "OK"}, {"userName" : ` + user.User + `}]`))
     return
 }
 

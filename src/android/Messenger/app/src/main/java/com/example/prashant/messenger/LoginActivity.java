@@ -66,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void responseHandler(Exception ex, JSONArray resObj) {
         String message = "";
+        String userName = "";
         int statusCode = 0;
 
         if (ex != null) {
@@ -77,12 +78,14 @@ public class LoginActivity extends AppCompatActivity {
         try {
             statusCode = resObj.getJSONObject(0).getInt("statusCode");
             message = resObj.getJSONObject(1).getString("message");
+            userName = resObj.getJSONObject(2).getString("userName");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         if (statusCode != 200) { alert(message); return; }
         Intent i = new Intent(this, ChatActivity.class);
+        i.putExtra("userName", userName);
         startActivity(i);
     }
 
