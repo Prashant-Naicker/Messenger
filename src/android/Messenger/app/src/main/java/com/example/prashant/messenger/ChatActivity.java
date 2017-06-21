@@ -13,74 +13,48 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+
 public class ChatActivity extends AppCompatActivity {
     EditText etMessage;
     Button btSend;
+    TaskThread thread = new TaskThread();
+    TaskThreadItem item = new TaskThreadItem() {
+        @Override
+        public void doWork() {
+
+            try { sendMessage(item, etMessage.getText().toString().trim().getBytes(StandardCharsets.UTF_8)); }
+            catch (IOException e) { e.printStackTrace(); }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
         etMessage = (EditText) findViewById(R.id.etInput);
         btSend = (Button)findViewById(R.id.btSend);
 
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                performSend();
+                thread.addWork(item);
                 etMessage.setText("");
             }
         });
     }
 
-    private void performSend() {
-        String message = etMessage.getText().toString().trim();
-        String userName = getIntent().getStringExtra("userName");
+    public static void sendMessage(TaskThreadItem item, byte[] data) throws IOException {
+        short dataLength = (short)data.length;
+        byte[] dataLengthRaw = new byte[2];
 
-        JSONObject reqObj = new JSONObject();
+        dataLengthRaw[0] = (byte)(dataLength << 8 >> 8);
+        dataLengthRaw[1] = (byte)(dataLength >> 8);
 
-        try {
-            reqObj.put("message", message);
-            reqObj.put("userName", userName);
-        }
-        catch(Exception e) { e.printStackTrace(); }
-
-        API req = new API(ChatActivity.this, "/message") {
-            @Override
-            public void onResponseCallback(Exception ex, JSONArray resObj) {
-                responseHandler(ex, resObj);
-            }
-        };
-        req.setRequestObject(reqObj);
-        req.send();
-    }
-
-    private void responseHandler(Exception ex, JSONArray resObj) {
-        String message = "";
-        int statusCode = 0;
-
-        if (ex != null) {
-            alert(ex.getMessage());
-            Log.e("ERROR",ex.getMessage());
-            return;
-        }
-
-        try {
-            statusCode = resObj.getJSONObject(0).getInt("statusCode");
-            message = resObj.getJSONObject(1).getString("message");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if (statusCode != 200) { alert(message); return; }
-    }
-
-    private void alert(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setCancelable(true);
-
-        AlertDialog alert = builder.create();
-        alert.show();
+        item.s.getOutputStream().write(dataLengthRaw);
+        item.s.getOutputStream().write(data);
     }
 }

@@ -5,6 +5,8 @@ package com.example.prashant.messenger;
  */
 
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TaskThread {
@@ -19,16 +21,21 @@ public class TaskThread {
 
         _thread = new Thread(new Runnable() {
             public void run() {
-                processQueueTasks();
+                try {
+                    Socket s = new Socket("192.168.1.2", 8081);
+                    processQueueTasks(s);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         _thread.start();
     }
 
-    private void processQueueTasks() {
+    private void processQueueTasks(Socket s) {
         while (!_isCancelled) {
             TaskThreadItem workItem;
-            try { workItem = _workQueue.take(); }
+            try { workItem = _workQueue.take(); workItem.setSocket(s); }
             catch (Exception ex) { break; }
 
             workItem.doWork();

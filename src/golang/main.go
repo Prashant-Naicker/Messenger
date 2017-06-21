@@ -28,10 +28,20 @@ func main() {
     http.HandleFunc("/login", login)
     http.HandleFunc("/message", message)
 
-    err := http.ListenAndServeTLS(":8080", "../src/golang/crt/messenger.jobjot.co.nz.crt", "../src/golang/key/messenger.jobjot.co.nz.key", nil)
-    if err != nil {
-        fmt.Println(err)
-        return
+    //err := http.ListenAndServeTLS(":8080", "../src/golang/crt/messenger.jobjot.co.nz.crt", "../src/golang/key/messenger.jobjot.co.nz.key", nil)
+    //if err != nil {
+    //    fmt.Println(err)
+    //    return
+    //}
+
+    l, err := net.Listen("tcp", ":8081")
+    if err != nil { fmt.Printf("%v", err); return }
+
+    for {
+        conn, err := l.Accept()
+        if err != nil { fmt.Printf("%v", err); continue }
+
+        go handleConnection(conn)
     }
 }
 
@@ -135,7 +145,7 @@ func awaitData(conn net.Conn, totalSize int) ([]byte, error) {
 
         readSize += length
     }
-
+    fmt.Println(readSize)
     return buffer, nil
 }
 
