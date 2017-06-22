@@ -24,7 +24,6 @@ public class ChatActivity extends AppCompatActivity {
     TaskThreadItem item = new TaskThreadItem() {
         @Override
         public void doWork() {
-
             try { sendMessage(item, etMessage.getText().toString().trim().getBytes(StandardCharsets.UTF_8)); }
             catch (IOException e) { e.printStackTrace(); }
         }
