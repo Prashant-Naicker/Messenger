@@ -63,7 +63,7 @@ func handleConnection(conn net.Conn) {
         data, err := awaitData(conn, int(size))
         if (err != nil) { fmt.Println("Disconnected"); return }
 
-        sendData(conn, string(data))
+        sendData(conn, data)
 
         fmt.Printf("> %v\n", string(data))
     }
@@ -83,12 +83,19 @@ func awaitData(conn net.Conn, totalSize int) ([]byte, error) {
     return buffer, nil
 }
 
-func sendData(conn net.Conn, message string) error {
-    _, err := conn.Write([]byte(message))
+func sendData(conn net.Conn, message []byte) error {
+    var dataLength = len(message)
+    var dataLengthRaw = []byte {0, 0}
+
+    dataLengthRaw[0] = byte(dataLength << 8 >> 8)
+    dataLengthRaw[1] = byte(dataLength >> 8)
+
+    _, err := conn.Write(dataLengthRaw)
+    _, err = conn.Write(message)
     return err
 }
 
-func isUserOnline(a Users, list []Users) bool {
+func isContainedInList(a Users, list []Users) bool {
     for _, b := range list {
         if b == a {
             return true
@@ -122,7 +129,7 @@ func login(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if (isUserOnline(user, storage)) {
+    if (isContainedInList(user, storage)) {
         w.Write([]byte(`[{"statusCode" : 1}, {"message": "That username is already taken."}]`))
         return
     }

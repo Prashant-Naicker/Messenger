@@ -5,9 +5,18 @@ package com.example.prashant.messenger;
  */
 
 
+import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import static android.content.ContentValues.TAG;
+import static java.security.AccessController.getContext;
 
 public class TaskThread {
 
@@ -21,26 +30,20 @@ public class TaskThread {
 
         _thread = new Thread(new Runnable() {
             public void run() {
-                try {
-                    Socket s = new Socket("192.168.1.2", 8081);
-                    processQueueTasks(s);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                processQueueTasks();
             }
         });
         _thread.start();
     }
 
-    private void processQueueTasks(Socket s) {
+    private void processQueueTasks() {
         while (!_isCancelled) {
             TaskThreadItem workItem;
-            try { workItem = _workQueue.take(); workItem.setSocket(s); }
+            try { workItem = _workQueue.take(); }
             catch (Exception ex) { break; }
 
             workItem.doWork();
         }
-        System.out.println("-- Underlying thread exited!");
     }
 
     public void addWork(TaskThreadItem workItem) {
@@ -52,4 +55,5 @@ public class TaskThread {
         _workQueue = null;
         _thread.interrupt();
     }
+
 }

@@ -1,5 +1,6 @@
 package com.example.prashant.messenger;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -8,6 +9,10 @@ import java.net.Socket;
 
 public abstract class TaskThreadItem {
     Socket s;
+
+    protected TaskThreadItem() throws IOException {
+    }
+
     public abstract void doWork();
 
     public void setSocket(Socket socket) {

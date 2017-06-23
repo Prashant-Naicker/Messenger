@@ -15,19 +15,35 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ChatActivity extends AppCompatActivity {
     EditText etMessage;
     Button btSend;
-    TaskThread thread = new TaskThread();
-    TaskThreadItem item = new TaskThreadItem() {
+    TaskThread threadTask = new TaskThread();
+    TaskThread threadTCP = new TaskThread();
+
+    TaskThreadItem TCPConnect = new TaskThreadItem() {
         @Override
         public void doWork() {
-            try { sendMessage(item, etMessage.getText().toString().trim().getBytes(StandardCharsets.UTF_8)); }
+            try { TCPConnect.setSocket(new Socket("192.168.1.2", 8081)); }
+            catch (IOException e) { e.printStackTrace(); }
+            handleConnection(this.s);
+        }
+    };
+
+    TaskThreadItem sendItem = new TaskThreadItem() {
+        @Override
+        public void doWork() {
+            try { sendMessage(TCPConnect.s, etMessage.getText().toString().trim().getBytes(StandardCharsets.UTF_8)); }
             catch (IOException e) { e.printStackTrace(); }
         }
     };
+
+    public ChatActivity() throws IOException {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,23 +53,56 @@ public class ChatActivity extends AppCompatActivity {
         etMessage = (EditText) findViewById(R.id.etInput);
         btSend = (Button)findViewById(R.id.btSend);
 
+        threadTCP.addWork(TCPConnect);
+
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                thread.addWork(item);
+                threadTask.addWork(sendItem);
                 etMessage.setText("");
             }
         });
     }
 
-    public static void sendMessage(TaskThreadItem item, byte[] data) throws IOException {
+    public static void sendMessage(Socket s, byte[] data) throws IOException {
         short dataLength = (short)data.length;
         byte[] dataLengthRaw = new byte[2];
 
         dataLengthRaw[0] = (byte)(dataLength << 8 >> 8);
         dataLengthRaw[1] = (byte)(dataLength >> 8);
 
-        item.s.getOutputStream().write(dataLengthRaw);
-        item.s.getOutputStream().write(data);
+        s.getOutputStream().write(dataLengthRaw);
+        s.getOutputStream().write(data);
+    }
+
+    private String handleConnection(Socket s) {
+        byte[] sizeBytes, data;
+        ByteBuffer b;
+        short size = 0;
+
+        while(true) {
+            sizeBytes = awaitData(s, 2);
+            b = ByteBuffer.wrap(sizeBytes);
+            b.order(ByteOrder.LITTLE_ENDIAN);
+
+            while(b.hasRemaining()) { size = b.getShort(); }
+            data = awaitData(s, (int)size);
+
+            Log.e("DONE", new String(data));
+        }
+    }
+
+    private byte[] awaitData(Socket s, int totalSize) {
+        byte[] buffer = new byte[totalSize];
+        int readSize = 0;
+
+        while (readSize < totalSize) {
+            try { s.getInputStream().read(buffer, readSize, totalSize); }
+            catch (IOException e) { e.printStackTrace(); }
+
+            readSize += buffer.length;
+        }
+
+        return buffer;
     }
 }
