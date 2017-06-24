@@ -9,18 +9,16 @@ import (
     "encoding/binary"
 )
 
-type Users struct {
-    User string `json:"userName"`
+type User struct {
+    Username string `json:"userName"`
 }
 
-type Messages struct {
-    User string `json:"userName"`
-    Message string `json:"message"`
-    Time string
+type Connection struct {
+    Conn net.Conn
 }
 
-var storage = []Users{}
-var messages = []Messages{}
+var connectionList = []Connection{}
+var userList = []User{}
 
 func main() {
     fmt.Println("Server is running...")
@@ -55,15 +53,37 @@ func listenTCP() {
 func handleConnection(conn net.Conn) {
     fmt.Println("Connected!")
 
+    connection := Connection{}
+    connection.Conn = conn
+
+    if (!isConnected(connection, connectionList)) { connectionList = append(connectionList, connection); }
+
+    fmt.Println(connectionList)
+
     for {
         sizeBytes, err := awaitData(conn, 2)
-        if (err != nil) { fmt.Println("Disconnected"); return }
+        if (err != nil) {
+            connectionList = removeConn(connection, connectionList)
+            fmt.Println("Disconnected")
+            fmt.Println(connectionList)
+            return
+        }
 
         size := binary.LittleEndian.Uint16(sizeBytes)
         data, err := awaitData(conn, int(size))
-        if (err != nil) { fmt.Println("Disconnected"); return }
+        if (err != nil) {
+            connectionList = removeConn(connection, connectionList)
+            fmt.Println("Disconnected")
+            fmt.Println(connectionList)
+            return
+        }
 
-        sendData(conn, data)
+        for i := 0; i < len(connectionList); i++ {
+            if (connectionList[i].Conn != conn) {
+                sendData(connectionList[i].Conn, data)
+                fmt.Println(connectionList[i])
+            }
+        }
 
         fmt.Printf("> %v\n", string(data))
     }
@@ -92,10 +112,11 @@ func sendData(conn net.Conn, message []byte) error {
 
     _, err := conn.Write(dataLengthRaw)
     _, err = conn.Write(message)
+
     return err
 }
 
-func isContainedInList(a Users, list []Users) bool {
+func isUserOnline(a User, list []User) bool {
     for _, b := range list {
         if b == a {
             return true
@@ -104,10 +125,31 @@ func isContainedInList(a Users, list []Users) bool {
     return false
 }
 
+func isConnected(a Connection, list []Connection) bool {
+    for _, b := range list {
+        if b == a {
+            return true
+        }
+    }
+    return false
+}
+
+func removeConn(a Connection, list []Connection) []Connection {
+    for i := 0; i < len(list); i++ {
+        if list[i] == a {
+            list[i] = list[len(list)-1]
+            list = list[:len(list)-1]
+        }
+    }
+    return list
+}
+
+
+
 func login(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Request Made - login")
 
-    user := Users{}
+    user := User{}
 
     //Reading request body.
     defer r.Body.Close()
@@ -124,19 +166,19 @@ func login(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if (user == Users{}) {
+    if (user == User{}) {
         w.Write([]byte(`[{"statusCode" : 2}, {"message": "Please enter a username."}]`))
         return
     }
 
-    if (isContainedInList(user, storage)) {
+    if (isUserOnline(user, userList)) {
         w.Write([]byte(`[{"statusCode" : 1}, {"message": "That username is already taken."}]`))
         return
     }
 
-    storage = append(storage, user)
-    fmt.Println(storage)
+    userList = append(userList, user)
+    fmt.Println(userList)
 
-    w.Write([]byte(`[{"statusCode" : 200}, {"message" : "OK"}, {"userName" : ` + user.User + `}]`))
+    w.Write([]byte(`[{"statusCode" : 200}, {"message" : "OK"}, {"userName" : ` + user.Username + `}]`))
     return
 }
