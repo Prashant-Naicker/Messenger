@@ -78,11 +78,10 @@ func handleConnection(conn net.Conn) {
             return
         }
 
+        //Loop through all connections and send the received message to them.
         for i := 0; i < len(connectionList); i++ {
-            if (connectionList[i].Conn != conn) {
-                sendData(connectionList[i].Conn, data)
-                fmt.Println(connectionList[i])
-            }
+            sendData(connectionList[i].Conn, data)
+            fmt.Println(connectionList[i])
         }
 
         fmt.Printf("> %v\n", string(data))

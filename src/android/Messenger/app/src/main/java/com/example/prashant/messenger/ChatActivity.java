@@ -1,6 +1,7 @@
 package com.example.prashant.messenger;
 
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +9,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,8 +23,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ChatActivity extends AppCompatActivity {
+    LinearLayout mLayout;
     EditText etMessage;
     Button btSend;
+    byte[] data;
     TaskThread threadTask = new TaskThread();
     TaskThread threadTCP = new TaskThread();
 
@@ -50,8 +55,12 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        TextView textView = new TextView(this);
+        textView.setText("New text");
+
         etMessage = (EditText) findViewById(R.id.etInput);
         btSend = (Button)findViewById(R.id.btSend);
+        mLayout = (LinearLayout) findViewById(R.id.chatLayout);
 
         threadTCP.addWork(TCPConnect);
 
@@ -76,7 +85,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private String handleConnection(Socket s) {
-        byte[] sizeBytes, data;
+        byte[] sizeBytes;
         ByteBuffer b;
         short size = 0;
 
@@ -87,8 +96,12 @@ public class ChatActivity extends AppCompatActivity {
 
             while(b.hasRemaining()) { size = b.getShort(); }
             data = awaitData(s, (int)size);
-
-            Log.e("DONE", new String(data));
+            runOnUiThread(new Runnable() {
+                public void run()
+                {
+                    mLayout.addView(createNewTextView(new String(data)));
+                }
+            });
         }
     }
 
@@ -104,5 +117,14 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         return buffer;
+    }
+
+    private TextView createNewTextView(String text) {
+        //final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        final TextView textView = new TextView(this);
+        textView.setPadding(16,0,0,0);
+        //textView.setLayoutParams(lparams);
+        textView.setText(text);
+        return textView;
     }
 }
