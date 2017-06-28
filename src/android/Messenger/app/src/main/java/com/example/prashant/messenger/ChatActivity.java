@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -21,12 +23,18 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class ChatActivity extends AppCompatActivity {
-    LinearLayout mLayout;
+    ListView mLayout;
     EditText etMessage;
+    String Message;
     Button btSend;
+    String userName;
+    ListView list;
+    ArrayAdapter<String> adapter;
     byte[] data;
+    ArrayList<String> items;
     TaskThread threadTask = new TaskThread();
     TaskThread threadTCP = new TaskThread();
 
@@ -42,7 +50,7 @@ public class ChatActivity extends AppCompatActivity {
     TaskThreadItem sendItem = new TaskThreadItem() {
         @Override
         public void doWork() {
-            try { sendMessage(TCPConnect.s, etMessage.getText().toString().trim().getBytes(StandardCharsets.UTF_8)); }
+            try { sendMessage(TCPConnect.s, Message.getBytes(StandardCharsets.UTF_8)); }
             catch (IOException e) { e.printStackTrace(); }
         }
     };
@@ -55,20 +63,28 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        TextView textView = new TextView(this);
-        textView.setText("New text");
-
         etMessage = (EditText) findViewById(R.id.etInput);
         btSend = (Button)findViewById(R.id.btSend);
-        mLayout = (LinearLayout) findViewById(R.id.chatLayout);
+        mLayout = (ListView) findViewById(R.id.chatLayout);
+        userName = getIntent().getStringExtra("userName");
+
+        items = new ArrayList<String>();
+
+        adapter = new ArrayAdapter<String>(this, R.layout.layout_item, items);
+
+        list = (ListView) findViewById(R.id.chatLayout);
+        list.setAdapter(adapter);
 
         threadTCP.addWork(TCPConnect);
 
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                threadTask.addWork(sendItem);
-                etMessage.setText("");
+                if (!etMessage.getText().toString().trim().matches("")) {
+                    Message = userName + ": " + etMessage.getText().toString().trim();
+                    threadTask.addWork(sendItem);
+                    etMessage.setText("");
+                }
             }
         });
     }
@@ -99,7 +115,8 @@ public class ChatActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 public void run()
                 {
-                    mLayout.addView(createNewTextView(new String(data)));
+                    items.add(new String(data));
+                    list.setAdapter(adapter);
                 }
             });
         }
@@ -119,12 +136,13 @@ public class ChatActivity extends AppCompatActivity {
         return buffer;
     }
 
-    private TextView createNewTextView(String text) {
-        //final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        final TextView textView = new TextView(this);
-        textView.setPadding(16,0,0,0);
-        //textView.setLayoutParams(lparams);
-        textView.setText(text);
-        return textView;
+
+    private void populateListView() {
+        String[] items = {"Blue", "Green"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.layout_item, items);
+
+        ListView list = (ListView) findViewById(R.id.chatLayout);
+        list.setAdapter(adapter);
     }
 }
