@@ -3,9 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:textStyle="bold"
-    android:layout_marginStart="16dp"
-    android:layout_marginLeft="16dp"
-    android:layout_below="@+id/etInput"
-
+    android:textSize="20sp"
     >
 </TextView>
