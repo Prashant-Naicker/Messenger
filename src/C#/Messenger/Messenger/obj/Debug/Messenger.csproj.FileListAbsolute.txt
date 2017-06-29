@@ -1,1 +1,9 @@
 D:\GitProjects\Messenger\src\C#\Messenger\Messenger\bin\Debug\Messenger.exe.config
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\bin\Debug\Messenger.exe
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\bin\Debug\Messenger.pdb
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.csprojResolveAssemblyReference.cache
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.Properties.Resources.resources
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.csproj.GenerateResource.Cache
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.exe
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.pdb
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.Messenger.resources
