@@ -40,29 +40,28 @@ namespace Messenger
             t.Start();
         }
 
-        public void commenceRequestSend()
+        private void commenceRequestSend()
         {
-            WebRequestHandler handler = new WebRequestHandler();
-            X509Certificate2 certificate = new X509Certificate2("D:/GitProjects/Messenger/src/golang/crt/messenger.jobjot.co.nz.crt");
-
-            handler.ClientCertificates.Add(certificate);
-            using (var client = new HttpClient(handler))
+            using (var client = new HttpClient())
             {
-                //ServicePointManager.ServerCertificateValidationCallback = (object sender, X509Certificate certificate2, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
-                // {
-                //    return true;
-                //};
-
                 try
                 {
                     HttpResponseMessage resObj = client.PostAsync(_url, new StringContent(_reqObj.ToString(), System.Text.Encoding.UTF8, "application/json")).Result;
-                    _responseHandler(null, resObj.ToString());
+                    InvokeResponse(null, resObj.ToString());
                 }
                 catch (Exception ex)
                 {
-                    _responseHandler(ex, null);
+                    InvokeResponse(ex, null);
                 }
             }
+        }
+
+        private void InvokeResponse(Exception e, string s)
+        {
+            Program.UIThread.Post((state) =>
+            {
+                _responseHandler(e, s);
+            }, null);
         }
     }
 }

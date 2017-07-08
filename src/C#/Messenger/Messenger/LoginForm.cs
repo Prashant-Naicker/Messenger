@@ -5,10 +5,13 @@ using System.Windows.Forms;
 
 namespace Messenger
 {
-    public partial class Messenger : Form
+    public partial class LoginForm : Form
     {
-        public Messenger()
+        public bool DidLoginSuccessfully { get; private set; }
+
+        public LoginForm()
         {
+            DidLoginSuccessfully = false;
             InitializeComponent();
         }
 
@@ -19,7 +22,7 @@ namespace Messenger
 
         private void performLogin(string name)
         {
-            API req = new API("https://192.168.1.2:8080/login");
+            API req = new API("https://messenger.jobjot.co.nz:8080/login");
 
             JObject reqObj = new JObject();
 
@@ -28,11 +31,17 @@ namespace Messenger
             req.SetResponseHandler((ex, data) =>
             {
                 if (ex != null) { Debug.WriteLine("There was an exception."); }
-                if (data != null) { Debug.WriteLine("Response Received."); }
+                if (data != null)
+                {
+                    DidLoginSuccessfully = true;
+                    Debug.WriteLine("Response Received.");
+                    Close();
+                }
             });
 
             req.setRequestObject(reqObj);
             req.send();
         }
+
     }
 }

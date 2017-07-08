@@ -1,6 +1,6 @@
 ﻿namespace Messenger
 {
-    partial class Messenger
+    partial class LoginForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Messenger));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
             this.btLogin = new System.Windows.Forms.Button();
             this.tbUser = new System.Windows.Forms.TextBox();
             this.lMessenger = new System.Windows.Forms.Label();
@@ -49,7 +49,7 @@
             this.btLogin.UseVisualStyleBackColor = true;
             this.btLogin.Click += new System.EventHandler(this.btLogin_Click);
             // 
-            // textBox1
+            // tbUser
             // 
             this.tbUser.Location = new System.Drawing.Point(74, 251);
             this.tbUser.Name = "tbUser";
