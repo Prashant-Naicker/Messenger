@@ -35,9 +35,7 @@ namespace Messenger
         // Send
         public void send()
         {
-            ThreadStart ts = new ThreadStart(() => commenceRequestSend());
-            Thread t = new Thread(ts);
-            t.Start();
+           ThreadPool.QueueUserWorkItem(o => commenceRequestSend());
         }
 
         private void commenceRequestSend()

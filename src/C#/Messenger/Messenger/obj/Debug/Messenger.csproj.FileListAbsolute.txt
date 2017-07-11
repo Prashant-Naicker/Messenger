@@ -20,3 +20,4 @@ C:\Users\Prashant\Documents\GitHub\Messenger\src\C#\Messenger\Messenger\obj\Debu
 D:\GitProjects\Messenger\src\C#\Messenger\Messenger\bin\Debug\Newtonsoft.Json.dll
 D:\GitProjects\Messenger\src\C#\Messenger\Messenger\bin\Debug\Newtonsoft.Json.xml
 D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.LoginForm.resources
+D:\GitProjects\Messenger\src\C#\Messenger\Messenger\obj\Debug\Messenger.ChatForm.resources

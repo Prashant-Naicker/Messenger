@@ -87,7 +87,7 @@
             this.lName.Text = "Enter a Name:";
             this.lName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // Messenger
+            // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -97,7 +97,7 @@
             this.Controls.Add(this.lMessenger);
             this.Controls.Add(this.tbUser);
             this.Controls.Add(this.btLogin);
-            this.Name = "Messenger";
+            this.Name = "LoginForm";
             this.Text = "Messenger";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
