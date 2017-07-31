@@ -1,7 +1,7 @@
 # Messenger
 
 ## Description 
-Allow multple users to join a chat room with HTTPS and send messages to one another over TCP.
+Allow multiple users to join a chat room with HTTPS and send messages to one another over TCP.
 First client will be an android app,  but will expand to other clients. 
 
 ## Setup
