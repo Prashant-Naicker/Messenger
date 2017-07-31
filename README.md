@@ -25,3 +25,6 @@ First client will be an android app,  but will expand to other clients.
 9.  Open the file to install the application, ignore any warnings.
 10. Make sure the server is running from your PC.
 11. Open the Application.
+
+### .NET Applciation:
+(Comming Soon)
